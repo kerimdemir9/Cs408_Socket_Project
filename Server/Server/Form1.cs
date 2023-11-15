@@ -29,7 +29,30 @@ namespace Server
 
         private void Receive(Socket client)
         {
-            
+            Boolean connected = true;
+
+            while (connected && !_terminating)
+            {
+                try
+                {
+                    var buffer = new Byte[64];
+                    client.Receive(buffer);
+
+                    var incomingMessage = Encoding.Default.GetString(buffer);
+                    incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf("\0"));
+                    richTextBox_logs.AppendText(String.Concat("Client: ", incomingMessage, "\n"));
+                }
+                catch
+                {
+                    if (!_terminating)
+                    {
+                        richTextBox_logs.AppendText("A client has disconnected.\n");
+                    }
+                    client.Close();
+                    _clientSockets.Remove(client);
+                    connected = false;
+                }
+            }
         }
         
         private void Accept()
@@ -42,7 +65,7 @@ namespace Server
                     _clientSockets.Add(newClient);
                     richTextBox_logs.AppendText("A client is connected.\n");
 
-                    Thread receiveThread = new Thread(() => Receive(newClient)); // updated
+                    Thread receiveThread = new Thread(() => Receive(newClient));
                     receiveThread.Start();
                 }
                 catch
@@ -72,17 +95,15 @@ namespace Server
 
                 _listening = true;
                 button_listen.Enabled = false;
-                textBox_message.Enabled = true;
-                button_send.Enabled = true;
                 
                 Thread acceptThread = new Thread(Accept);
-
+                acceptThread.Start();
+                richTextBox_logs.AppendText(String.Concat("Started listening on port: ", serverPort, "\n"));
             }
-        }
-
-        private void button_send_Click(object sender, EventArgs e)
-        {
-            throw new System.NotImplementedException();
+            else
+            {
+                richTextBox_logs.AppendText("Please check the port number.\n");
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

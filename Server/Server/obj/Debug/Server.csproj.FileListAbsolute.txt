@@ -7,3 +7,4 @@ C:\Users\kerim\Desktop\Cs_408\Project\Server\Server\obj\Debug\Server.csproj.Gene
 C:\Users\kerim\Desktop\Cs_408\Project\Server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
 C:\Users\kerim\Desktop\Cs_408\Project\Server\Server\obj\Debug\Server.exe
 C:\Users\kerim\Desktop\Cs_408\Project\Server\Server\obj\Debug\Server.pdb
+C:\Users\kerim\Desktop\Cs_408\Project\Server\Server\obj\Debug\Server.Form1.resources
