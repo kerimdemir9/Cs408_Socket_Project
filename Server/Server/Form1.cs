@@ -15,11 +15,15 @@ namespace Server
 {
     public partial class Form1 : Form
     {
+        private int _id = 0;
         private Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         private List<Socket> _clientSockets = new List<Socket>();
         private Boolean _terminating = false;
         private Boolean _listening = false;
-        
+        private List<string> _names = new List<string>();
+        private HashSet<string> _allNames = new HashSet<string>();
+        private object _namesLock = new object();
+
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +31,7 @@ namespace Server
             this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
         }
 
-        private void Receive(Socket client)
+        private void Receive(Socket client, int clientId)
         {
             Boolean connected = true;
 
@@ -37,35 +41,54 @@ namespace Server
                 {
                     var buffer = new Byte[64];
                     client.Receive(buffer);
-
                     var incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf("\0"));
-                    richTextBox_logs.AppendText(String.Concat("Client: ", incomingMessage, "\n"));
+                    
+                    lock (_namesLock)
+                    {
+                        if (_allNames.Contains(incomingMessage))
+                        {
+                            richTextBox_logs.AppendText(String.Concat("Client ", clientId,
+                                " tried to enter name that is already taken. Closing connection.\n"));
+                            client.Close();
+                        }
+                        else
+                        {
+                            _allNames.Add(incomingMessage);
+                            _names[clientId] = incomingMessage;
+                            richTextBox_logs.AppendText(String.Concat("Client name: ", incomingMessage, " received.\n"));
+                        }
+                    }
+                    
                 }
-                catch
+                catch (Exception e)
                 {
+                    // richTextBox_logs.AppendText(e.ToString() + "\n");
                     if (!_terminating)
                     {
                         richTextBox_logs.AppendText("A client has disconnected.\n");
                     }
+
                     client.Close();
                     _clientSockets.Remove(client);
                     connected = false;
                 }
             }
         }
-        
+
         private void Accept()
         {
-            while(_listening)
+            while (_listening)
             {
                 try
                 {
-                    Socket newClient = _serverSocket.Accept();
+                    var newClient = _serverSocket.Accept();
                     _clientSockets.Add(newClient);
                     richTextBox_logs.AppendText("A client is connected.\n");
-
-                    Thread receiveThread = new Thread(() => Receive(newClient));
+                    _names.Add(String.Concat("Client ", _id.ToString(), " haven't entered name!"));
+                    var temp = _id;
+                    var receiveThread = new Thread(() => Receive(newClient, temp));
+                    _id++;
                     receiveThread.Start();
                 }
                 catch
@@ -76,13 +99,12 @@ namespace Server
                     }
                     else
                     {
-                        richTextBox_logs.AppendText("The socket stopped working.\n");
+                        richTextBox_logs.AppendText("Couldn't accept a new socket.\n");
                     }
-
                 }
             }
         }
-        
+
         private void button_listen_Click(object sender, EventArgs e)
         {
             int serverPort;
@@ -95,8 +117,8 @@ namespace Server
 
                 _listening = true;
                 button_listen.Enabled = false;
-                
-                Thread acceptThread = new Thread(Accept);
+
+                var acceptThread = new Thread(Accept);
                 acceptThread.Start();
                 richTextBox_logs.AppendText(String.Concat("Started listening on port: ", serverPort, "\n"));
             }
