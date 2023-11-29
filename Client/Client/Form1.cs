@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -35,11 +36,34 @@ namespace Client
                     button_connect.Enabled = false;
                     _connected = true;
                     button_send.Enabled = true;
+
+                    var isSocketAlive = new Thread(IsConnected);
+                    isSocketAlive.Start();
                 }
                 catch
                 {
                     _clientSocket.Close();
                     Environment.Exit(0);
+                }
+            }
+        }
+
+        private void IsConnected()
+        {
+            while (true)
+            {
+                try
+                {
+                    _connected = !(_clientSocket.Poll(1, SelectMode.SelectRead) && _clientSocket.Available == 0);
+                    if (!_connected)
+                    {
+                        button_connect.Enabled = true;
+                        button_send.Enabled = false;
+                    }
+                }
+                catch (SocketException)
+                {
+                    break;
                 }
             }
         }
