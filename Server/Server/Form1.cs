@@ -168,11 +168,11 @@ namespace Server
                         {
                             if (result)
                             {
-                                richTextBox_logs.AppendText(String.Concat(_names[clientId], " subscribed to IF100.\n"));
+                                richTextBox_if100.AppendText(String.Concat(_names[clientId], " subscribed to IF100.\n"));
                             }
                             else
                             {
-                                richTextBox_logs.AppendText(String.Concat(_names[clientId],
+                                richTextBox_if100.AppendText(String.Concat(_names[clientId],
                                     " unsubscribed from IF100.\n"));
                             }
                         }
@@ -188,12 +188,12 @@ namespace Server
                         {
                             if (result)
                             {
-                                richTextBox_logs.AppendText(String.Concat(_names[clientId],
+                                richTextBox_sps101.AppendText(String.Concat(_names[clientId],
                                     " subscribed to SPS101.\n"));
                             }
                             else
                             {
-                                richTextBox_logs.AppendText(String.Concat(_names[clientId],
+                                richTextBox_sps101.AppendText(String.Concat(_names[clientId],
                                     " unsubscribed from SPS101.\n"));
                             }
                         }
