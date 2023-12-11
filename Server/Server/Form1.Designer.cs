@@ -33,50 +33,94 @@
             this.richTextBox_logs = new System.Windows.Forms.RichTextBox();
             this.textBox_port = new System.Windows.Forms.TextBox();
             this.label_port = new System.Windows.Forms.Label();
+            this.richTextBox_if100 = new System.Windows.Forms.RichTextBox();
+            this.richTextBox_sps101 = new System.Windows.Forms.RichTextBox();
+            this.if100 = new System.Windows.Forms.Label();
+            this.sps101 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button_listen
             // 
             this.button_listen.AccessibleName = "button_listen";
-            this.button_listen.Location = new System.Drawing.Point(515, 114);
+            this.button_listen.Location = new System.Drawing.Point(145, 29);
             this.button_listen.Name = "button_listen";
-            this.button_listen.Size = new System.Drawing.Size(101, 25);
+            this.button_listen.Size = new System.Drawing.Size(64, 24);
             this.button_listen.TabIndex = 0;
-            this.button_listen.Text = "listen";
+            this.button_listen.Text = "Listen";
             this.button_listen.UseVisualStyleBackColor = true;
             this.button_listen.Click += new System.EventHandler(this.button_listen_Click);
             // 
             // richTextBox_logs
             // 
             this.richTextBox_logs.AccessibleName = "richTextBox_logs";
-            this.richTextBox_logs.Location = new System.Drawing.Point(142, 154);
+            this.richTextBox_logs.Location = new System.Drawing.Point(39, 63);
             this.richTextBox_logs.Name = "richTextBox_logs";
-            this.richTextBox_logs.Size = new System.Drawing.Size(474, 214);
+            this.richTextBox_logs.Size = new System.Drawing.Size(170, 324);
             this.richTextBox_logs.TabIndex = 2;
             this.richTextBox_logs.Text = "";
             // 
             // textBox_port
             // 
             this.textBox_port.AccessibleName = "textBox_port";
-            this.textBox_port.Location = new System.Drawing.Point(234, 117);
+            this.textBox_port.Location = new System.Drawing.Point(79, 29);
             this.textBox_port.Name = "textBox_port";
-            this.textBox_port.Size = new System.Drawing.Size(253, 22);
+            this.textBox_port.Size = new System.Drawing.Size(60, 22);
             this.textBox_port.TabIndex = 5;
             // 
             // label_port
             // 
             this.label_port.AccessibleName = "label_port";
-            this.label_port.Location = new System.Drawing.Point(142, 114);
+            this.label_port.Location = new System.Drawing.Point(39, 29);
             this.label_port.Name = "label_port";
-            this.label_port.Size = new System.Drawing.Size(86, 28);
+            this.label_port.Size = new System.Drawing.Size(34, 28);
             this.label_port.TabIndex = 7;
             this.label_port.Text = "Port:";
+            // 
+            // richTextBox_if100
+            // 
+            this.richTextBox_if100.AccessibleName = "richTextBox_if100";
+            this.richTextBox_if100.Location = new System.Drawing.Point(324, 63);
+            this.richTextBox_if100.Name = "richTextBox_if100";
+            this.richTextBox_if100.Size = new System.Drawing.Size(170, 324);
+            this.richTextBox_if100.TabIndex = 8;
+            this.richTextBox_if100.Text = "";
+            // 
+            // richTextBox_sps101
+            // 
+            this.richTextBox_sps101.AccessibleName = "richTextBox_sps101";
+            this.richTextBox_sps101.Location = new System.Drawing.Point(584, 63);
+            this.richTextBox_sps101.Name = "richTextBox_sps101";
+            this.richTextBox_sps101.Size = new System.Drawing.Size(170, 324);
+            this.richTextBox_sps101.TabIndex = 9;
+            this.richTextBox_sps101.Text = "";
+            // 
+            // if100
+            // 
+            this.if100.AccessibleName = "label_port";
+            this.if100.Location = new System.Drawing.Point(384, 29);
+            this.if100.Name = "if100";
+            this.if100.Size = new System.Drawing.Size(76, 28);
+            this.if100.TabIndex = 10;
+            this.if100.Text = "IF100";
+            // 
+            // sps101
+            // 
+            this.sps101.AccessibleName = "label_port";
+            this.sps101.Location = new System.Drawing.Point(635, 29);
+            this.sps101.Name = "sps101";
+            this.sps101.Size = new System.Drawing.Size(79, 28);
+            this.sps101.TabIndex = 11;
+            this.sps101.Text = "SPS101";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.sps101);
+            this.Controls.Add(this.if100);
+            this.Controls.Add(this.richTextBox_sps101);
+            this.Controls.Add(this.richTextBox_if100);
             this.Controls.Add(this.label_port);
             this.Controls.Add(this.textBox_port);
             this.Controls.Add(this.richTextBox_logs);
@@ -86,6 +130,11 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.RichTextBox richTextBox_if100;
+        private System.Windows.Forms.RichTextBox richTextBox_sps101;
+        private System.Windows.Forms.Label if100;
+        private System.Windows.Forms.Label sps101;
 
         private System.Windows.Forms.RichTextBox richTextBox_logs;
         private System.Windows.Forms.TextBox textBox_port;
