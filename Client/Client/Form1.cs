@@ -70,7 +70,7 @@ namespace Client
 
         private void button_send_Click(object sender, EventArgs e)
         {
-            var message = "0" + textBox_name.Text;
+            var message = textBox_name.Text;
             var buffer = Encoding.Default.GetBytes(message);
             _clientSocket.Send(buffer);
         }
