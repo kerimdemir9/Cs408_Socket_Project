@@ -70,9 +70,15 @@ namespace Client
 
         private void button_send_Click(object sender, EventArgs e)
         {
-            var message = textBox_name.Text;
+            var message = "0" + textBox_name.Text;
             var buffer = Encoding.Default.GetBytes(message);
             _clientSocket.Send(buffer);
+        }
+        
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _connected = false;
+            Environment.Exit(0);
         }
     }
 }
