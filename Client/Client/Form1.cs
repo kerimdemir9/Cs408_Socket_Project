@@ -21,6 +21,7 @@ namespace Client
         {
             InitializeComponent();
             Control.CheckForIllegalCrossThreadCalls = false;
+            this.FormClosing += Form1_FormClosing;
         }
 
         private void button_connect_Click(object sender, EventArgs e)

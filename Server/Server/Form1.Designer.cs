@@ -42,7 +42,7 @@
             // button_listen
             // 
             this.button_listen.AccessibleName = "button_listen";
-            this.button_listen.Location = new System.Drawing.Point(212, 31);
+            this.button_listen.Location = new System.Drawing.Point(250, 24);
             this.button_listen.Name = "button_listen";
             this.button_listen.Size = new System.Drawing.Size(103, 31);
             this.button_listen.TabIndex = 0;
@@ -53,24 +53,24 @@
             // richTextBox_logs
             // 
             this.richTextBox_logs.AccessibleName = "richTextBox_logs";
-            this.richTextBox_logs.Location = new System.Drawing.Point(51, 63);
+            this.richTextBox_logs.Location = new System.Drawing.Point(12, 63);
             this.richTextBox_logs.Name = "richTextBox_logs";
-            this.richTextBox_logs.Size = new System.Drawing.Size(264, 454);
+            this.richTextBox_logs.Size = new System.Drawing.Size(341, 462);
             this.richTextBox_logs.TabIndex = 2;
             this.richTextBox_logs.Text = "";
             // 
             // textBox_port
             // 
             this.textBox_port.AccessibleName = "textBox_port";
-            this.textBox_port.Location = new System.Drawing.Point(104, 35);
+            this.textBox_port.Location = new System.Drawing.Point(93, 31);
             this.textBox_port.Name = "textBox_port";
-            this.textBox_port.Size = new System.Drawing.Size(102, 22);
+            this.textBox_port.Size = new System.Drawing.Size(130, 22);
             this.textBox_port.TabIndex = 5;
             // 
             // label_port
             // 
             this.label_port.AccessibleName = "label_port";
-            this.label_port.Location = new System.Drawing.Point(51, 34);
+            this.label_port.Location = new System.Drawing.Point(12, 31);
             this.label_port.Name = "label_port";
             this.label_port.Size = new System.Drawing.Size(47, 26);
             this.label_port.TabIndex = 7;
@@ -81,23 +81,23 @@
             this.richTextBox_if100.AccessibleName = "richTextBox_if100";
             this.richTextBox_if100.Location = new System.Drawing.Point(411, 63);
             this.richTextBox_if100.Name = "richTextBox_if100";
-            this.richTextBox_if100.Size = new System.Drawing.Size(264, 454);
+            this.richTextBox_if100.Size = new System.Drawing.Size(629, 206);
             this.richTextBox_if100.TabIndex = 8;
             this.richTextBox_if100.Text = "";
             // 
             // richTextBox_sps101
             // 
             this.richTextBox_sps101.AccessibleName = "richTextBox_sps101";
-            this.richTextBox_sps101.Location = new System.Drawing.Point(776, 63);
+            this.richTextBox_sps101.Location = new System.Drawing.Point(411, 319);
             this.richTextBox_sps101.Name = "richTextBox_sps101";
-            this.richTextBox_sps101.Size = new System.Drawing.Size(264, 454);
+            this.richTextBox_sps101.Size = new System.Drawing.Size(629, 206);
             this.richTextBox_sps101.TabIndex = 9;
             this.richTextBox_sps101.Text = "";
             // 
             // if100
             // 
             this.if100.AccessibleName = "label_port";
-            this.if100.Location = new System.Drawing.Point(521, 35);
+            this.if100.Location = new System.Drawing.Point(411, 35);
             this.if100.Name = "if100";
             this.if100.Size = new System.Drawing.Size(76, 28);
             this.if100.TabIndex = 10;
@@ -106,7 +106,7 @@
             // sps101
             // 
             this.sps101.AccessibleName = "label_port";
-            this.sps101.Location = new System.Drawing.Point(879, 35);
+            this.sps101.Location = new System.Drawing.Point(411, 288);
             this.sps101.Name = "sps101";
             this.sps101.Size = new System.Drawing.Size(79, 28);
             this.sps101.TabIndex = 11;

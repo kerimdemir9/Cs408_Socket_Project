@@ -11,20 +11,41 @@ namespace Server
 {
     public partial class Form1 : Form
     {
-        private int _id;
+        private int _id; // local id for each client
         private bool _listening;
         private bool _terminating;
-        private readonly object _printLock = new object();
-        private readonly object _allNamesLock = new object();
-        private readonly Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        private readonly object _printIf100Lock = new object();
-        private readonly object _printSps101Lock = new object();
-        private readonly object _clientSocketsLock = new object();
-        private readonly HashSet<string> _allNames = new HashSet<string>(); // unique names list for checking if name exists already 
-        private readonly Dictionary<int, string> _names = new Dictionary<int, string>(); // id : name pair
-        private readonly Dictionary<int, Socket> _clientSockets = new Dictionary<int, Socket>();
-        private readonly Dictionary<int, bool> _isSubscribedToSps101 = new Dictionary<int, bool>();
-        private readonly Dictionary<int, bool> _isSubscribedToIf100 = new Dictionary<int, bool>();
+
+        private readonly object
+            _printLock =
+                new object(); // so that only one thread can print to logs at a time -> avoid mix ups from different threads trying to print at the same time
+
+        private readonly object
+            _allNamesLock =
+                new object(); // so that only one thread can access the name set at a time -> avoid conflicts between clients
+
+        private readonly Socket _serverSocket =
+            new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        private readonly object _printIf100Lock = new object(); // same as printLock for IF100 channel
+        private readonly object _printSps101Lock = new object(); // same as printLock for SPS101 channel
+
+        private readonly object
+            _clientSocketsLock =
+                new object(); // to avoid conflicts between threads trying to access clientSockets dictionary while another thread is modifying it
+
+        private readonly HashSet<string>
+            _allNames = new HashSet<string>(); // unique names list for checking if name exists already 
+
+        private readonly Dictionary<int, string> _names = new Dictionary<int, string>(); // local id : name pair
+
+        private readonly Dictionary<int, Socket>
+            _clientSockets = new Dictionary<int, Socket>(); // local id : socket pair
+
+        private readonly Dictionary<int, bool>
+            _isSubscribedToSps101 = new Dictionary<int, bool>(); // local id : subscription status pair
+
+        private readonly Dictionary<int, bool>
+            _isSubscribedToIf100 = new Dictionary<int, bool>(); // local id : subscription status pair
 
         public Form1()
         {
@@ -35,13 +56,14 @@ namespace Server
 
         private void HandleNameMessage(Socket client, int clientId, string message) // handle name sent by client
         {
-            lock (_allNamesLock)
+            lock
+                (_allNamesLock) // lock name set so no other client tries to enter a new name at the same time, to prevent conflicts
             {
-                if (_allNames.Contains(message))
+                if (_allNames.Contains(message)) // if duplicate name is entered
                 {
                     lock (_printLock)
                     {
-                        richTextBox_logs.AppendText(string.Concat("Client ", clientId,
+                        richTextBox_logs.AppendText(string.Concat("--> Client ", clientId,
                             " tried to enter name that is already taken. Closing connection.\n"));
                     }
 
@@ -49,15 +71,16 @@ namespace Server
                 }
                 else
                 {
-                    if (_names[clientId] != "null")
+                    if (_names[clientId] != "null") // if a client tries to change its username
                     {
-                        _allNames.Remove(_names[clientId]);
+                        _allNames.Remove(_names[clientId]); // remove existing name
                     }
-                    _allNames.Add(message);
+
+                    _allNames.Add(message); // add new username
                     _names[clientId] = message;
                     lock (_printLock)
                     {
-                        richTextBox_logs.AppendText(string.Concat("Client name: ", message, " registered.\n"));
+                        richTextBox_logs.AppendText(string.Concat("--> Client name: ", message, " registered.\n"));
                     }
                 }
             }
@@ -67,25 +90,24 @@ namespace Server
         {
             try
             {
-                lock (_printLock)
+                lock (_printLock) // print to logs in the server
                 {
-                    richTextBox_logs.AppendText(string.Concat("Client ", _names[clientId], " sent message to IF100: ",
-                        message, "\n"));
-                }
-                
-                lock (_printIf100Lock)
-                {
-                    richTextBox_if100.AppendText(string.Concat("Client ", _names[clientId], " sent message to IF100: ",
-                        message, "\n"));
+                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                        " sent a message to IF100 channel: ", message, "\n"));
                 }
 
-                lock (_clientSocketsLock)
+                lock (_printIf100Lock) // print to the channel of IF100 in the server
+                {
+                    richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId], ": ", message, "\n"));
+                }
+
+                lock (_clientSocketsLock) // send the message to all subscribed channels
                 {
                     foreach (var clientSocket in _clientSockets)
                     {
-                        if (_isSubscribedToIf100[clientSocket.Key])
+                        if (_isSubscribedToIf100[clientSocket.Key]) // check if client is subscribed
                         {
-                            clientSocket.Value.Send(Encoding.Default.GetBytes(message));
+                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("0", message)));
                         }
                     }
                 }
@@ -94,7 +116,8 @@ namespace Server
             {
                 lock (_printLock)
                 {
-                    richTextBox_logs.AppendText("An exception occured while sending message to IF100 channel!\n");
+                    richTextBox_logs.AppendText(string.Concat("--> Client ", _names[clientId],
+                        ": An exception occured while sending message to IF100 channel!\n"));
                 }
             }
         }
@@ -103,16 +126,15 @@ namespace Server
         {
             try
             {
-                lock (_printLock)
+                lock (_printLock) // same logic as above method
                 {
-                    richTextBox_logs.AppendText(string.Concat("Client ", _names[clientId], " sent message to SPS101: ",
-                        message, "\n"));
+                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                        " sent a message to SPS101 channel: ", message, "\n"));
                 }
-                
+
                 lock (_printSps101Lock)
                 {
-                    richTextBox_sps101.AppendText(string.Concat("Client ", _names[clientId], " sent message to IF100: ",
-                        message, "\n"));
+                    richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId], ": ", message, "\n"));
                 }
 
                 lock (_clientSocketsLock)
@@ -130,16 +152,19 @@ namespace Server
             {
                 lock (_printLock)
                 {
-                    richTextBox_logs.AppendText("An exception occured while sending message to SPS101 channel!\n");
+                    richTextBox_logs.AppendText(string.Concat("--> Client ", _names[clientId],
+                        ": An exception occured while sending message to SPS101 channel!\n"));
                 }
             }
         }
 
-        private void Receive(Socket client, int clientId) // receive messages sent from client
+        private void
+            Receive(Socket client, int clientId) // receive messages sent from client // separate thread for each client
         {
-            Boolean connected = true;
-
-            while (connected && !_terminating)
+            Boolean connected = true; // since we can receive messages from client, it means that client is connected
+            _isSubscribedToIf100[clientId] = false; // initially client is not subscribed to any channel
+            _isSubscribedToSps101[clientId] = false; // initially client is not subscribed to any channel
+            while (connected && !_terminating) // while connected and not terminating
             {
                 try
                 {
@@ -149,6 +174,7 @@ namespace Server
                     var incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf('\0'));
 
+                    // classify the message
                     if (incomingMessage[0] == '0') // registering name
                     {
                         HandleNameMessage(client, clientId, incomingMessage.Substring(1));
@@ -159,18 +185,19 @@ namespace Server
                         var message = incomingMessage.Substring(1);
                         // bool result;
                         bool.TryParse(message, out var result);
-                        if (_isSubscribedToIf100[clientId] != result)
+                        if (_isSubscribedToIf100[clientId] != result) // if subscription status is different from the one in the server // normally it should be different, but still check to avoid unnecessary processing
                         {
                             _isSubscribedToIf100[clientId] = result;
-                            lock (_printLock)
+                            lock (_printIf100Lock)
                             {
                                 if (result)
                                 {
-                                    richTextBox_if100.AppendText(string.Concat(_names[clientId], " subscribed to IF100.\n"));
+                                    richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
+                                        " subscribed to IF100.\n"));
                                 }
                                 else
                                 {
-                                    richTextBox_if100.AppendText(string.Concat(_names[clientId],
+                                    richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from IF100.\n"));
                                 }
                             }
@@ -185,16 +212,16 @@ namespace Server
                         if (_isSubscribedToSps101[clientId] != result)
                         {
                             _isSubscribedToSps101[clientId] = result;
-                            lock (_printLock)
+                            lock (_printSps101Lock)
                             {
                                 if (result)
                                 {
-                                    richTextBox_sps101.AppendText(string.Concat(_names[clientId],
+                                    richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to SPS101.\n"));
                                 }
                                 else
                                 {
-                                    richTextBox_sps101.AppendText(string.Concat(_names[clientId],
+                                    richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from SPS101.\n"));
                                 }
                             }
@@ -222,8 +249,13 @@ namespace Server
                     // richTextBox_logs.AppendText(e.ToString() + "\n"); // error log
                     if (!_terminating)
                     {
-                        richTextBox_logs.AppendText(
-                            "A client has disconnected. Removing all information belonging to the client.\n");
+                        lock (_printLock)
+                        {
+                            var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
+                            richTextBox_logs.AppendText(
+                                string.Concat("--> Client ", name,
+                                    " has disconnected. Removing all information belonging to the client.\n"));
+                        }
                     }
 
                     client.Close();
@@ -262,7 +294,11 @@ namespace Server
                         _clientSockets[_id] = newClient;
                     }
 
-                    richTextBox_logs.AppendText("A client is connected.\n");
+                    lock (_printLock)
+                    {
+                        richTextBox_logs.AppendText("--> A client is connected.\n");
+                    }
+
                     _names[_id] = "null";
                     var tempId = _id;
                     var receiveThread = new Thread(() => Receive(newClient, tempId));
@@ -277,7 +313,10 @@ namespace Server
                     }
                     else
                     {
-                        richTextBox_logs.AppendText("Couldn't accept a new socket. Try Again.\n");
+                        lock (_printLock)
+                        {
+                            richTextBox_logs.AppendText("--> Couldn't accept a new socket. Try Again.\n");
+                        }
                     }
                 }
             }
@@ -287,7 +326,6 @@ namespace Server
         {
             try
             {
-                // int serverPort;
                 if (int.TryParse(textBox_port.Text, out var serverPort))
                 {
                     var endPoint = new IPEndPoint(IPAddress.Any, serverPort);
@@ -300,16 +338,25 @@ namespace Server
 
                     var acceptThread = new Thread(Accept);
                     acceptThread.Start();
-                    richTextBox_logs.AppendText(String.Concat("Started listening on port: ", serverPort, "\n"));
+                    lock (_printLock)
+                    {
+                        richTextBox_logs.AppendText(string.Concat("--> Started listening on port: ", serverPort, "\n"));
+                    }
                 }
                 else
                 {
-                    richTextBox_logs.AppendText("Please check the port number.\n");
+                    lock (_printLock)
+                    {
+                        richTextBox_logs.AppendText("--> Please check the port number.\n");
+                    }
                 }
             }
             catch (Exception)
             {
-                richTextBox_logs.AppendText("A problem happened, please try again.\n");
+                lock (_printLock)
+                {
+                    richTextBox_logs.AppendText("--> A problem happened, please try again.\n");
+                }
             }
         }
 
