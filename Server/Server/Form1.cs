@@ -54,6 +54,39 @@ namespace Server
             this.FormClosing += Form1_FormClosing;
         }
 
+        private void RemoveClient(Socket client, int clientId, bool connected, bool terminating)
+        {
+            if (!terminating && !connected)
+            {
+                lock (_printLock)
+                {
+                    var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
+                    richTextBox_logs.AppendText(
+                        string.Concat("--> Client ", name,
+                            " has disconnected. Removing all information belonging to the client.\n"));
+                }
+            }
+
+            client.Close();
+            lock (_clientSocketsLock)
+            {
+                _clientSockets.Remove(clientId);
+            }
+
+            if (_names[clientId] != "null")
+            {
+                lock (_allNamesLock)
+                {
+                    _allNames.Remove(_names[clientId]);
+                }
+
+                // client is disconnected, so remove all information regarding that client
+                _isSubscribedToIf100.Remove(clientId);
+                _isSubscribedToSps101.Remove(clientId);
+                _names.Remove(clientId);
+            }
+        }
+        
         private void SendAck(Socket client, int clientId, string message)
         {
             try
@@ -64,7 +97,7 @@ namespace Server
             {
                 lock (_printLock)
                 {
-                    var name = _names[clientId] != "null" ? _names[clientId] : clientId.ToString(); 
+                    var name = _names[clientId] != "null" ? _names[clientId] : clientId.ToString();
                     richTextBox_logs.AppendText(string.Concat("--> An exception occured while sending ACK to client ",
                         name, "!\n"));
                 }
@@ -83,6 +116,7 @@ namespace Server
                         richTextBox_logs.AppendText(string.Concat("--> Client ", clientId,
                             " tried to enter name that is already taken. Closing connection.\n"));
                     }
+
                     SendAck(client, clientId, "DUPLICATE_USER");
                     client.Close();
                 }
@@ -99,6 +133,7 @@ namespace Server
                     {
                         richTextBox_logs.AppendText(string.Concat("--> Client name: ", message, " registered.\n"));
                     }
+
                     SendAck(client, clientId, "USER_ADDED_SUCCESS");
                 }
             }
@@ -125,7 +160,8 @@ namespace Server
                     {
                         if (_isSubscribedToIf100[clientSocket.Key]) // check if client is subscribed
                         {
-                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:", _names[clientId] , ":IF100:" , message)));
+                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:",
+                                _names[clientId], ":IF100:", message)));
                         }
                     }
                 }
@@ -161,7 +197,8 @@ namespace Server
                     {
                         if (_isSubscribedToSps101[clientSocket.Key])
                         {
-                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:", _names[clientId] , ":SPS101:" , message)));
+                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:",
+                                _names[clientId], ":SPS101:", message)));
                         }
                     }
                 }
@@ -174,6 +211,11 @@ namespace Server
                         ": An exception occured while sending message to SPS101 channel!\n"));
                 }
             }
+        }
+        
+        private bool IsSocketConnected(Socket client)
+        {
+            return !(client.Poll(10, SelectMode.SelectRead) && client.Available == 0);
         }
 
         private void
@@ -266,43 +308,25 @@ namespace Server
                             HandleSps101Message(clientId, incomingMessage.Substring(1));
                         }
                     }
+
+                    connected = IsSocketConnected(client);
                 }
                 catch (Exception)
                 {
-                    // richTextBox_logs.AppendText(e.ToString() + "\n"); // error log
-                    if (!_terminating)
+                    if (!IsSocketConnected(client))
                     {
-                        lock (_printLock)
-                        {
-                            var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
-                            richTextBox_logs.AppendText(
-                                string.Concat("--> Client ", name,
-                                    " has disconnected. Removing all information belonging to the client.\n"));
-                        }
+                        RemoveClient(client, clientId, connected, _terminating);
                     }
-
-                    client.Close();
-                    lock (_clientSocketsLock)
+                    
+                    lock (_printLock)
                     {
-                        _clientSockets.Remove(clientId);
+                        var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
+                        richTextBox_logs.AppendText(string.Concat("--> An error occured while processing Client ", name,
+                            " data.\n"));
                     }
-
-                    if (_names[clientId] != "null")
-                    {
-                        lock (_allNamesLock)
-                        {
-                            _allNames.Remove(_names[clientId]);
-                        }
-
-                        // client is disconnected, so remove all information regarding that client
-                        _isSubscribedToIf100.Remove(clientId);
-                        _isSubscribedToSps101.Remove(clientId);
-                        _names.Remove(clientId);
-                    }
-
-                    connected = false;
                 }
             }
+            RemoveClient(client, clientId, connected, _terminating);
         }
 
         private void Accept() // accepts connection from client
