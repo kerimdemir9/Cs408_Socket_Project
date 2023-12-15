@@ -54,6 +54,23 @@ namespace Server
             this.FormClosing += Form1_FormClosing;
         }
 
+        private void SendAck(Socket client, int clientId, string message)
+        {
+            try
+            {
+                client.Send(Encoding.Default.GetBytes(message));
+            }
+            catch (Exception)
+            {
+                lock (_printLock)
+                {
+                    var name = _names[clientId] != "null" ? _names[clientId] : clientId.ToString(); 
+                    richTextBox_logs.AppendText(string.Concat("--> An exception occured while sending ACK to client ",
+                        name, "!\n"));
+                }
+            }
+        }
+
         private void HandleNameMessage(Socket client, int clientId, string message) // handle name sent by client
         {
             lock
@@ -66,7 +83,7 @@ namespace Server
                         richTextBox_logs.AppendText(string.Concat("--> Client ", clientId,
                             " tried to enter name that is already taken. Closing connection.\n"));
                     }
-
+                    SendAck(client, clientId, "DUPLICATE_USER");
                     client.Close();
                 }
                 else
@@ -82,6 +99,7 @@ namespace Server
                     {
                         richTextBox_logs.AppendText(string.Concat("--> Client name: ", message, " registered.\n"));
                     }
+                    SendAck(client, clientId, "USER_ADDED_SUCCESS");
                 }
             }
         }
@@ -107,7 +125,7 @@ namespace Server
                     {
                         if (_isSubscribedToIf100[clientSocket.Key]) // check if client is subscribed
                         {
-                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("0", message)));
+                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:", _names[clientId] , ":IF100:" , message)));
                         }
                     }
                 }
@@ -143,7 +161,7 @@ namespace Server
                     {
                         if (_isSubscribedToSps101[clientSocket.Key])
                         {
-                            clientSocket.Value.Send(Encoding.Default.GetBytes(message));
+                            clientSocket.Value.Send(Encoding.Default.GetBytes(string.Concat("MESSAGE:", _names[clientId] , ":SPS101:" , message)));
                         }
                     }
                 }
@@ -185,7 +203,8 @@ namespace Server
                         var message = incomingMessage.Substring(1);
                         // bool result;
                         bool.TryParse(message, out var result);
-                        if (_isSubscribedToIf100[clientId] != result) // if subscription status is different from the one in the server // normally it should be different, but still check to avoid unnecessary processing
+                        if (_isSubscribedToIf100[clientId] !=
+                            result) // if subscription status is different from the one in the server // normally it should be different, but still check to avoid unnecessary processing
                         {
                             _isSubscribedToIf100[clientId] = result;
                             lock (_printIf100Lock)
@@ -194,11 +213,13 @@ namespace Server
                                 {
                                     richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to IF100.\n"));
+                                    SendAck(client, clientId, "SUBSCRIBED_SUCCESS:IF100");
                                 }
                                 else
                                 {
                                     richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from IF100.\n"));
+                                    SendAck(client, clientId, "UNSUBSCRIBED_SUCCESS:IF100");
                                 }
                             }
                         }
@@ -218,11 +239,13 @@ namespace Server
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to SPS101.\n"));
+                                    SendAck(client, clientId, "SUBSCRIBED_SUCCESS:SPS101");
                                 }
                                 else
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from SPS101.\n"));
+                                    SendAck(client, clientId, "UNSUBSCRIBED_SUCCESS:SPS101");
                                 }
                             }
                         }
