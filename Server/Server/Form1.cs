@@ -235,15 +235,31 @@ namespace Server
                             result) // if subscription status is different from the one in the server // normally it should be different, but still check to avoid unnecessary processing
                         {
                             _isSubscribedToIf100[clientId] = result;
-                            lock (_printIf100Lock)
+
+                            if (result)
                             {
-                                if (result)
+                                lock (_printLock)
+                                {
+                                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                                        " subscribed to IF100.\n"));
+                                }
+
+                                lock (_printIf100Lock)
                                 {
                                     richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to IF100.\n"));
                                     SendAck(client, clientId, "SUBSCRIBED_SUCCESS:IF100");
                                 }
-                                else
+                            }
+                            else
+                            {
+                                lock (_printLock)
+                                {
+                                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                                        " unsubscribed from IF100.\n"));
+                                }
+
+                                lock (_printIf100Lock)
                                 {
                                     richTextBox_if100.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from IF100.\n"));
@@ -261,15 +277,29 @@ namespace Server
                         if (_isSubscribedToSps101[clientId] != result)
                         {
                             _isSubscribedToSps101[clientId] = result;
-                            lock (_printSps101Lock)
+
+                            if (result)
                             {
-                                if (result)
+                                lock (_printLock)
+                                {
+                                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                                        " subscribed to SPS101.\n"));
+                                }
+                                lock (_printSps101Lock)
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to SPS101.\n"));
                                     SendAck(client, clientId, "SUBSCRIBED_SUCCESS:SPS101");
                                 }
-                                else
+                            }
+                            else
+                            {
+                                lock (_printLock)
+                                {
+                                    richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
+                                        " unsubscribed from SPS101.\n"));
+                                }
+                                lock (_printSps101Lock)
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from SPS101.\n"));
@@ -310,6 +340,7 @@ namespace Server
                     }
                 }
             }
+
             if (!_terminating)
             {
                 lock (_printLock)
@@ -320,6 +351,7 @@ namespace Server
                             " has disconnected. Removing all information belonging to the client.\n"));
                 }
             }
+
             RemoveClient(client, clientId);
         }
 
