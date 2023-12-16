@@ -41,8 +41,9 @@ namespace Client
                     var isSocketAlive = new Thread(IsConnected);
                     isSocketAlive.Start();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.Write(ex);
                     _clientSocket.Close();
                     Environment.Exit(0);
                 }

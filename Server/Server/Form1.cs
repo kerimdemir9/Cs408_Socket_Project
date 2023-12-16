@@ -54,26 +54,15 @@ namespace Server
             this.FormClosing += Form1_FormClosing;
         }
 
-        private void RemoveClient(Socket client, int clientId, bool connected, bool terminating)
+        private void RemoveClient(Socket client, int clientId)
         {
-            if (!terminating && !connected)
-            {
-                lock (_printLock)
-                {
-                    var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
-                    richTextBox_logs.AppendText(
-                        string.Concat("--> Client ", name,
-                            " has disconnected. Removing all information belonging to the client.\n"));
-                }
-            }
-
             client.Close();
             lock (_clientSocketsLock)
             {
                 _clientSockets.Remove(clientId);
             }
 
-            if (_names[clientId] != "null")
+            if (_names[clientId] != null)
             {
                 lock (_allNamesLock)
                 {
@@ -86,7 +75,7 @@ namespace Server
                 _names.Remove(clientId);
             }
         }
-        
+
         private void SendAck(Socket client, int clientId, string message)
         {
             try
@@ -97,7 +86,7 @@ namespace Server
             {
                 lock (_printLock)
                 {
-                    var name = _names[clientId] != "null" ? _names[clientId] : clientId.ToString();
+                    var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
                     richTextBox_logs.AppendText(string.Concat("--> An exception occured while sending ACK to client ",
                         name, "!\n"));
                 }
@@ -111,18 +100,21 @@ namespace Server
             {
                 if (_allNames.Contains(message)) // if duplicate name is entered
                 {
-                    lock (_printLock)
+                    if (_names[clientId] != message)
                     {
-                        richTextBox_logs.AppendText(string.Concat("--> Client ", clientId,
-                            " tried to enter name that is already taken. Closing connection.\n"));
-                    }
+                        lock (_printLock)
+                        {
+                            richTextBox_logs.AppendText(string.Concat("--> Client ", clientId,
+                                " tried to enter name that is already taken. Closing connection.\n"));
+                        }
 
-                    SendAck(client, clientId, "DUPLICATE_USER");
-                    client.Close();
+                        SendAck(client, clientId, "DUPLICATE_USER");
+                        RemoveClient(client, clientId);
+                    }
                 }
                 else
                 {
-                    if (_names[clientId] != "null") // if a client tries to change its username
+                    if (_names[clientId] != null) // if a client tries to change its username
                     {
                         _allNames.Remove(_names[clientId]); // remove existing name
                     }
@@ -212,19 +204,13 @@ namespace Server
                 }
             }
         }
-        
-        private bool IsSocketConnected(Socket client)
-        {
-            return !(client.Poll(10, SelectMode.SelectRead) && client.Available == 0);
-        }
 
         private void
             Receive(Socket client, int clientId) // receive messages sent from client // separate thread for each client
         {
-            Boolean connected = true; // since we can receive messages from client, it means that client is connected
             _isSubscribedToIf100[clientId] = false; // initially client is not subscribed to any channel
             _isSubscribedToSps101[clientId] = false; // initially client is not subscribed to any channel
-            while (connected && !_terminating) // while connected and not terminating
+            while (!_terminating && client.Connected) // while connected and not terminating
             {
                 try
                 {
@@ -308,16 +294,14 @@ namespace Server
                             HandleSps101Message(clientId, incomingMessage.Substring(1));
                         }
                     }
-
-                    connected = IsSocketConnected(client);
                 }
                 catch (Exception)
                 {
-                    if (!IsSocketConnected(client))
+                    if (!client.Connected)
                     {
-                        RemoveClient(client, clientId, connected, _terminating);
+                        break;
                     }
-                    
+
                     lock (_printLock)
                     {
                         var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
@@ -326,7 +310,17 @@ namespace Server
                     }
                 }
             }
-            RemoveClient(client, clientId, connected, _terminating);
+            if (!_terminating)
+            {
+                lock (_printLock)
+                {
+                    var name = _names != null ? _names[clientId] : clientId.ToString();
+                    richTextBox_logs.AppendText(
+                        string.Concat("--> Client ", name,
+                            " has disconnected. Removing all information belonging to the client.\n"));
+                }
+            }
+            RemoveClient(client, clientId);
         }
 
         private void Accept() // accepts connection from client
@@ -346,7 +340,7 @@ namespace Server
                         richTextBox_logs.AppendText("--> A client is connected.\n");
                     }
 
-                    _names[_id] = "null";
+                    _names[_id] = null;
                     var tempId = _id;
                     var receiveThread = new Thread(() => Receive(newClient, tempId));
                     _id++;
