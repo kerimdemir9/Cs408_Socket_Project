@@ -210,7 +210,7 @@ namespace Server
         {
             _isSubscribedToIf100[clientId] = false; // initially client is not subscribed to any channel
             _isSubscribedToSps101[clientId] = false; // initially client is not subscribed to any channel
-            while (!_terminating && client.Connected) // while connected and not terminating
+            while (!_terminating && !(client.Poll(1000, SelectMode.SelectRead) && client.Available == 0)) // while connected and not terminating
             {
                 try
                 {
@@ -327,16 +327,9 @@ namespace Server
                 }
                 catch (Exception)
                 {
-                    if (!client.Connected)
+                    if (!(client.Poll(1000, SelectMode.SelectRead) && client.Available == 0))
                     {
                         break;
-                    }
-
-                    lock (_printLock)
-                    {
-                        var name = _names[clientId] != null ? _names[clientId] : clientId.ToString();
-                        richTextBox_logs.AppendText(string.Concat("--> An error occured while processing Client ", name,
-                            " data.\n"));
                     }
                 }
             }

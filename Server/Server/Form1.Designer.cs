@@ -55,6 +55,7 @@
             this.richTextBox_logs.AccessibleName = "richTextBox_logs";
             this.richTextBox_logs.Location = new System.Drawing.Point(12, 63);
             this.richTextBox_logs.Name = "richTextBox_logs";
+            this.richTextBox_logs.ReadOnly = true;
             this.richTextBox_logs.Size = new System.Drawing.Size(341, 462);
             this.richTextBox_logs.TabIndex = 2;
             this.richTextBox_logs.Text = "";
@@ -81,6 +82,7 @@
             this.richTextBox_if100.AccessibleName = "richTextBox_if100";
             this.richTextBox_if100.Location = new System.Drawing.Point(411, 63);
             this.richTextBox_if100.Name = "richTextBox_if100";
+            this.richTextBox_if100.ReadOnly = true;
             this.richTextBox_if100.Size = new System.Drawing.Size(629, 206);
             this.richTextBox_if100.TabIndex = 8;
             this.richTextBox_if100.Text = "";
@@ -90,6 +92,7 @@
             this.richTextBox_sps101.AccessibleName = "richTextBox_sps101";
             this.richTextBox_sps101.Location = new System.Drawing.Point(411, 319);
             this.richTextBox_sps101.Name = "richTextBox_sps101";
+            this.richTextBox_sps101.ReadOnly = true;
             this.richTextBox_sps101.Size = new System.Drawing.Size(629, 206);
             this.richTextBox_sps101.TabIndex = 9;
             this.richTextBox_sps101.Text = "";
