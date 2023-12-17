@@ -258,10 +258,10 @@ namespace Server
         private void
             Receive(Socket client, int clientId) // receive messages sent from client // separate thread for each client
         {
+            bool connected = true;
             _isSubscribedToIf100[clientId] = false; // initially client is not subscribed to any channel
             _isSubscribedToSps101[clientId] = false; // initially client is not subscribed to any channel
-            while (!_terminating && !(client.Poll(1000, SelectMode.SelectRead) &&
-                                   client.Available == 0)) // while connected and not terminating
+            while (!_terminating && connected) // while connected and not terminating
             {
                 try
                 {
@@ -270,6 +270,7 @@ namespace Server
                     client.Receive(buffer);
                     var incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf('\0'));
+                    
 
                     // classify the message
                     if (incomingMessage[0] == '0') // registering name
@@ -382,30 +383,25 @@ namespace Server
                     }
                     
                 }
-                catch (Exception)
+                catch
                 {
-                    if (!(client.Poll(1000, SelectMode.SelectRead) && client.Available == 0))
+                    if (!_terminating)
                     {
-                        break;
+                        connected = false;
+                        lock (_printLock)
+                        {
+                            var name = _names != null ? _names[clientId] : clientId.ToString();
+                            richTextBox_logs.AppendText(
+                                string.Concat("--> Client ", name,
+                                    " has disconnected. Removing all information belonging to the client.\n"));
+                        }
                     }
+                    RemoveClient(client, clientId);
+                    UpdateClientList("clients");
+                    UpdateClientList("if100");
+                    UpdateClientList("sps101");
                 }
             }
-
-            if (!_terminating)
-            {
-                lock (_printLock)
-                {
-                    var name = _names != null ? _names[clientId] : clientId.ToString();
-                    richTextBox_logs.AppendText(
-                        string.Concat("--> Client ", name,
-                            " has disconnected. Removing all information belonging to the client.\n"));
-                }
-            }
-
-            RemoveClient(client, clientId);
-            UpdateClientList("clients");
-            UpdateClientList("if100");
-            UpdateClientList("sps101");
         }
 
         private void Accept() // accepts connection from client
