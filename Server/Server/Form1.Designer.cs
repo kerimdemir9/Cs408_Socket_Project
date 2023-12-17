@@ -104,18 +104,18 @@
             this.if100.AccessibleName = "label_port";
             this.if100.Location = new System.Drawing.Point(863, 27);
             this.if100.Name = "if100";
-            this.if100.Size = new System.Drawing.Size(76, 28);
+            this.if100.Size = new System.Drawing.Size(145, 30);
             this.if100.TabIndex = 10;
-            this.if100.Text = "IF100";
+            this.if100.Text = "Subscribed to IF100";
             // 
             // sps101
             // 
             this.sps101.AccessibleName = "label_port";
             this.sps101.Location = new System.Drawing.Point(650, 24);
             this.sps101.Name = "sps101";
-            this.sps101.Size = new System.Drawing.Size(79, 28);
+            this.sps101.Size = new System.Drawing.Size(166, 31);
             this.sps101.TabIndex = 11;
-            this.sps101.Text = "SPS101";
+            this.sps101.Text = "Subscribed to SPS101";
             // 
             // richTextBox_clients
             // 
