@@ -37,6 +37,8 @@
             this.richTextBox_sps101 = new System.Windows.Forms.RichTextBox();
             this.if100 = new System.Windows.Forms.Label();
             this.sps101 = new System.Windows.Forms.Label();
+            this.richTextBox_clients = new System.Windows.Forms.RichTextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button_listen
@@ -80,27 +82,27 @@
             // richTextBox_if100
             // 
             this.richTextBox_if100.AccessibleName = "richTextBox_if100";
-            this.richTextBox_if100.Location = new System.Drawing.Point(411, 63);
+            this.richTextBox_if100.Location = new System.Drawing.Point(863, 60);
             this.richTextBox_if100.Name = "richTextBox_if100";
             this.richTextBox_if100.ReadOnly = true;
-            this.richTextBox_if100.Size = new System.Drawing.Size(629, 206);
+            this.richTextBox_if100.Size = new System.Drawing.Size(187, 462);
             this.richTextBox_if100.TabIndex = 8;
             this.richTextBox_if100.Text = "";
             // 
             // richTextBox_sps101
             // 
             this.richTextBox_sps101.AccessibleName = "richTextBox_sps101";
-            this.richTextBox_sps101.Location = new System.Drawing.Point(411, 319);
+            this.richTextBox_sps101.Location = new System.Drawing.Point(650, 60);
             this.richTextBox_sps101.Name = "richTextBox_sps101";
             this.richTextBox_sps101.ReadOnly = true;
-            this.richTextBox_sps101.Size = new System.Drawing.Size(629, 206);
+            this.richTextBox_sps101.Size = new System.Drawing.Size(187, 462);
             this.richTextBox_sps101.TabIndex = 9;
             this.richTextBox_sps101.Text = "";
             // 
             // if100
             // 
             this.if100.AccessibleName = "label_port";
-            this.if100.Location = new System.Drawing.Point(411, 35);
+            this.if100.Location = new System.Drawing.Point(863, 27);
             this.if100.Name = "if100";
             this.if100.Size = new System.Drawing.Size(76, 28);
             this.if100.TabIndex = 10;
@@ -109,17 +111,39 @@
             // sps101
             // 
             this.sps101.AccessibleName = "label_port";
-            this.sps101.Location = new System.Drawing.Point(411, 288);
+            this.sps101.Location = new System.Drawing.Point(650, 24);
             this.sps101.Name = "sps101";
             this.sps101.Size = new System.Drawing.Size(79, 28);
             this.sps101.TabIndex = 11;
             this.sps101.Text = "SPS101";
+            // 
+            // richTextBox_clients
+            // 
+            this.richTextBox_clients.AccessibleName = "richTextBox_clients";
+            this.richTextBox_clients.Location = new System.Drawing.Point(431, 60);
+            this.richTextBox_clients.Name = "richTextBox_clients";
+            this.richTextBox_clients.ReadOnly = true;
+            this.richTextBox_clients.Size = new System.Drawing.Size(187, 462);
+            this.richTextBox_clients.TabIndex = 12;
+            this.richTextBox_clients.Text = "";
+            // 
+            // label1
+            // 
+            this.label1.AccessibleName = "label_port";
+            this.label1.AccessibleRole = System.Windows.Forms.AccessibleRole.TitleBar;
+            this.label1.Location = new System.Drawing.Point(431, 24);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(135, 33);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Connected Clients";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1075, 537);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.richTextBox_clients);
             this.Controls.Add(this.sps101);
             this.Controls.Add(this.if100);
             this.Controls.Add(this.richTextBox_sps101);
@@ -133,6 +157,9 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.RichTextBox richTextBox_clients;
+        private System.Windows.Forms.Label label1;
 
         private System.Windows.Forms.RichTextBox richTextBox_if100;
         private System.Windows.Forms.RichTextBox richTextBox_sps101;

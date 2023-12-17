@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -14,6 +15,8 @@ namespace Server
         private int _id; // local id for each client
         private bool _listening;
         private bool _terminating;
+        
+        private readonly object _printClientLock = new object();
 
         private readonly object
             _printLock =
@@ -93,6 +96,52 @@ namespace Server
             }
         }
 
+        private void UpdateClientList(string box)
+        {
+            switch (box)
+            {
+                case "if100":
+                    lock (_printIf100Lock)
+                    {
+                        richTextBox_if100.Clear();
+                        foreach (var client in _isSubscribedToIf100)
+                        {
+                            if (client.Value)
+                            {
+                                richTextBox_if100.AppendText(string.Concat("--> ", _names[client.Key], "\n"));
+                            }
+                        }
+                    }
+
+                    break;
+                case "sps101":
+                    lock (_printSps101Lock)
+                    {
+                        richTextBox_sps101.Clear();
+                        foreach (var client in _isSubscribedToSps101)
+                        {
+                            if (client.Value)
+                            {
+                                richTextBox_sps101.AppendText(string.Concat("--> ", _names[client.Key], "\n"));
+                            }
+                        }
+                    }
+
+                    break;
+                case "clients":
+                    lock (_printClientLock)
+                    {
+                        richTextBox_clients.Clear();
+                        foreach (var client in _names)
+                        {
+                            richTextBox_clients.AppendText(string.Concat("--> ", client.Value, "\n"));
+                        }
+                    }
+
+                    break;
+            }
+        }
+
         private void HandleNameMessage(Socket client, int clientId, string message) // handle name sent by client
         {
             lock
@@ -124,6 +173,7 @@ namespace Server
                     lock (_printLock)
                     {
                         richTextBox_logs.AppendText(string.Concat("--> Client name: ", message, " registered.\n"));
+                        richTextBox_clients.AppendText(string.Concat("--> ", message, "\n"));
                     }
 
                     SendAck(client, clientId, "USER_ADDED_SUCCESS");
@@ -210,7 +260,8 @@ namespace Server
         {
             _isSubscribedToIf100[clientId] = false; // initially client is not subscribed to any channel
             _isSubscribedToSps101[clientId] = false; // initially client is not subscribed to any channel
-            while (!_terminating && !(client.Poll(1000, SelectMode.SelectRead) && client.Available == 0)) // while connected and not terminating
+            while (!_terminating && !(client.Poll(1000, SelectMode.SelectRead) &&
+                                   client.Available == 0)) // while connected and not terminating
             {
                 try
                 {
@@ -224,6 +275,7 @@ namespace Server
                     if (incomingMessage[0] == '0') // registering name
                     {
                         HandleNameMessage(client, clientId, incomingMessage.Substring(1));
+                        UpdateClientList("clients");
                     }
 
                     if (incomingMessage[0] == '1') // subscription for IF100
@@ -267,6 +319,7 @@ namespace Server
                                 }
                             }
                         }
+                        UpdateClientList("if100");
                     }
 
                     if (incomingMessage[0] == '2') // subscription for SPS101
@@ -285,6 +338,7 @@ namespace Server
                                     richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
                                         " subscribed to SPS101.\n"));
                                 }
+
                                 lock (_printSps101Lock)
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
@@ -299,6 +353,7 @@ namespace Server
                                     richTextBox_logs.AppendText(string.Concat("--> ", _names[clientId],
                                         " unsubscribed from SPS101.\n"));
                                 }
+
                                 lock (_printSps101Lock)
                                 {
                                     richTextBox_sps101.AppendText(string.Concat("--> ", _names[clientId],
@@ -307,6 +362,7 @@ namespace Server
                                 }
                             }
                         }
+                        UpdateClientList("sps101");
                     }
 
                     if (incomingMessage[0] == '3') // messages for IF100
@@ -324,6 +380,7 @@ namespace Server
                             HandleSps101Message(clientId, incomingMessage.Substring(1));
                         }
                     }
+                    
                 }
                 catch (Exception)
                 {
@@ -346,6 +403,9 @@ namespace Server
             }
 
             RemoveClient(client, clientId);
+            UpdateClientList("clients");
+            UpdateClientList("if100");
+            UpdateClientList("sps101");
         }
 
         private void Accept() // accepts connection from client
