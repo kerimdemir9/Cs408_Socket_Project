@@ -15,7 +15,7 @@ namespace Server
         private int _id; // local id for each client
         private bool _listening;
         private bool _terminating;
-        
+
         private readonly object _printClientLock = new object();
 
         private readonly object
@@ -270,7 +270,23 @@ namespace Server
                     client.Receive(buffer);
                     var incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf('\0'));
-                    
+
+                    if (incomingMessage.Length == 0)
+                    {
+                        lock (_printLock)
+                        {
+                            var name = _names != null ? _names[clientId] : clientId.ToString();
+                            richTextBox_logs.AppendText(
+                                string.Concat("--> Client ", name,
+                                    " has disconnected. Removing all information belonging to the client.\n"));
+                        }
+
+                        RemoveClient(client, clientId);
+                        UpdateClientList("clients");
+                        UpdateClientList("if100");
+                        UpdateClientList("sps101");
+                        break;
+                    }
 
                     // classify the message
                     if (incomingMessage[0] == '0') // registering name
@@ -320,6 +336,7 @@ namespace Server
                                 }
                             }
                         }
+
                         UpdateClientList("if100");
                     }
 
@@ -363,6 +380,7 @@ namespace Server
                                 }
                             }
                         }
+
                         UpdateClientList("sps101");
                     }
 
@@ -381,7 +399,6 @@ namespace Server
                             HandleSps101Message(clientId, incomingMessage.Substring(1));
                         }
                     }
-                    
                 }
                 catch
                 {
@@ -396,6 +413,7 @@ namespace Server
                                     " has disconnected. Removing all information belonging to the client.\n"));
                         }
                     }
+
                     RemoveClient(client, clientId);
                     UpdateClientList("clients");
                     UpdateClientList("if100");
