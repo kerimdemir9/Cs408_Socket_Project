@@ -126,6 +126,7 @@
             this.button_sub_if100.TabIndex = 8;
             this.button_sub_if100.Text = "subscribe";
             this.button_sub_if100.UseVisualStyleBackColor = true;
+            this.button_sub_if100.Click += new System.EventHandler(this.button_sub_if100_Click);
             // 
             // button_sub_sps101
             // 
@@ -136,6 +137,7 @@
             this.button_sub_sps101.TabIndex = 9;
             this.button_sub_sps101.Text = "subscribe";
             this.button_sub_sps101.UseVisualStyleBackColor = true;
+            this.button_sub_sps101.Click += new System.EventHandler(this.button_sub_sps101_Click);
             // 
             // label3
             // 
@@ -178,6 +180,7 @@
             this.button_send_if100.TabIndex = 14;
             this.button_send_if100.Text = "send";
             this.button_send_if100.UseVisualStyleBackColor = true;
+            this.button_send_if100.Click += new System.EventHandler(this.button_send_if100_Click);
             // 
             // button_send_sps101
             // 
@@ -188,6 +191,7 @@
             this.button_send_sps101.TabIndex = 15;
             this.button_send_sps101.Text = "send";
             this.button_send_sps101.UseVisualStyleBackColor = true;
+            this.button_send_sps101.Click += new System.EventHandler(this.button_send_sps101_Click);
             // 
             // Form1
             // 
@@ -214,6 +218,7 @@
             this.Text = "Form1";
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         private System.Windows.Forms.Button button_send_if100;

@@ -8,3 +8,13 @@ C:\Users\kerim\Desktop\Cs_408\Project\Client\Client\obj\Debug\Client.csproj.Core
 C:\Users\kerim\Desktop\Cs_408\Project\Client\Client\obj\Debug\Client.exe
 C:\Users\kerim\Desktop\Cs_408\Project\Client\Client\obj\Debug\Client.pdb
 C:\Users\kerim\Desktop\Cs_408\Project\Client\Client\obj\Debug\Client.Form1.resources
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\bin\Debug\Client.exe.config
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\bin\Debug\Client.exe
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\bin\Debug\Client.pdb
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.Form1.resources
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.exe
+C:\Users\kerim\Desktop\Cs408_Socket_Project\Client\Client\obj\Debug\Client.pdb
