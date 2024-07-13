@@ -1,3 +1,2 @@
-SuDiscord as a term project for Computer Networks class. 
-Client written in js, server in C#. 
+SuDiscord as a term project for Computer Networks class.
 Communication is done via Sockets.
